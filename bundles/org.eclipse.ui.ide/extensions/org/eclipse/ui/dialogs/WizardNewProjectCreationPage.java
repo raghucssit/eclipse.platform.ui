@@ -45,7 +45,7 @@ import org.eclipse.ui.internal.ide.dialogs.ProjectContentsLocationArea;
 import org.eclipse.ui.internal.ide.dialogs.ProjectContentsLocationArea.IErrorMessageReporter;
 
 /**
- * Standard main page for a wizard that is creates a project resource.
+ * Standard main page for a wizard that creates a project resource.
  * <p>
  * This page may be used by clients as-is; it may be also be subclassed to suit.
  * </p>
