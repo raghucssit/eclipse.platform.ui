@@ -77,6 +77,7 @@ import org.eclipse.ui.ide.undo.WorkspaceUndoUtil;
 import org.eclipse.ui.internal.ide.IDEInternalPreferences;
 import org.eclipse.ui.internal.ide.IDEWorkbenchMessages;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
+import org.eclipse.ui.internal.ide.actions.LTKLauncher;
 import org.eclipse.ui.internal.ide.dialogs.IDEResourceInfoUtils;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.eclipse.ui.wizards.datatransfer.FileStoreStructureProvider;
@@ -1241,6 +1242,14 @@ public class CopyFilesAndFoldersOperation {
 	private boolean performCopy(IResource[] resources, IPath destination,
 			IProgressMonitor monitor) {
 		try {
+			IPath[] destPaths = new IPath[resources.length];
+			for (int i = 0; i < resources.length; i++) {
+				destPaths[i] = destination.append(resources[i].getName());
+			}
+			if (tryPerformLTKcopy(resources, destPaths)) {
+				return true;
+			}
+
 			AbstractWorkspaceOperation op = getUndoableCopyOrMoveOperation(
 					resources, destination);
 			op.setModelProviderIds(getModelProviderIds());
@@ -1301,6 +1310,11 @@ public class CopyFilesAndFoldersOperation {
 							workspace);
 				}
 			}
+
+			if (tryPerformLTKcopy(resources, destinationPaths)) {
+				return true;
+			}
+
 			CopyResourcesOperation op = new CopyResourcesOperation(resources,
 					destinationPaths,
 					IDEWorkbenchMessages.CopyFilesAndFoldersOperation_copyTitle);
@@ -1322,6 +1336,13 @@ public class CopyFilesAndFoldersOperation {
 			return false;
 		}
 		return true;
+	}
+
+	private boolean tryPerformLTKcopy(IResource[] resources, IPath[] destinationPaths) {
+		if (createLinks || createVirtualFoldersAndLinks) {
+			return false;
+		}
+		return LTKLauncher.copyResources(resources, destinationPaths);
 	}
 
 	/**
